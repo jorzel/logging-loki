@@ -4,6 +4,20 @@ networks:
   loki:
 
 services:
+  reservations-service:
+    image: reservations-service:v0
+    labels:
+      logging: "promtail"
+    ports:
+      - "8081:8081"
+
+  notifications-service:
+    image: notifications-service:v0
+    labels:
+      logging: "promtail"
+    ports:
+      - "8082:8082"
+
   loki:
     image: grafana/loki:2.9.0
     ports:
@@ -15,7 +29,9 @@ services:
   promtail:
     image: grafana/promtail:2.9.0
     volumes:
-      - /var/log:/var/log
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail-config.yaml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     networks:
       - loki
